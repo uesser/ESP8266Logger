@@ -1,0 +1,42 @@
+#######################################
+# Syntax Coloring Map For ESP8266WiFi
+#######################################
+
+#######################################
+# Library (KEYWORD3)
+#######################################
+
+Logger	KEYWORD3
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+Logger     KEYWORD1
+LogSerial  KEYWORD1
+LogLevel   KEYWORD1
+LogDest    KEYWORD1
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+regLogDest KEYWORD2
+logln      KEYWORD2
+log        KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+
+LOG_UNDEF             LITERAL1
+LOG_SERIAL            LITERAL1
+LOG_SERIAL1           LITERAL1
+
+DEBUG                 LITERAL1
+INFO                  LITERAL1
+WARNING               LITERAL1
+ERROR                 LITERAL1
+FATAL                 LITERAL1
+
+MAX_LOG_DEST_ENTRIES  LITERAL1
