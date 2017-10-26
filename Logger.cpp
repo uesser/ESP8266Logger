@@ -68,7 +68,7 @@ int Logger::regLogDestWifi(LogLevel logLev, String logHost, String logPort, Stri
 
 void Logger::log(int logDestIdx, LogLevel logLev, String LogFct, String logStr, boolean prtln) {
   if (logDestIdx >= 0 && logDestIdx < _logDestList.size() &&
-      (_logDestList[logDestIdx].logSerial != 0 || _logDestList[logDestIdx].log) {
+      (_logDestList[logDestIdx].logSerial != 0 || _logDestList[logDestIdx].logClient != 0) {
     log(logLev, logFct, logStr, prtln);
   }
 }
