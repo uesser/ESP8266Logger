@@ -24,8 +24,30 @@ typedef struct {
 
 #define MAX_LOG_DEST_ENTRIES 10;
 
-#define logln(logLev, logFct, logStr) log(logLev, logFct, logStr, true)
-#define logln(logDestIdx, logLev, logFct, logStr) log(logDestIdx, logLev, logFct, logStr, true)
+#define debug(logLev, logFct, logStr)               log(DEBUG, logFct, logStr, false)
+#define debug(logDestIdx, logLev, logFct, logStr)   log(logDestIdx, DEBUG, logFct, logStr, false)
+#define info(logLev, logFct, logStr)                log(INFO, logFct, logStr, false)
+#define info(logDestIdx, logLev, logFct, logStr)    log(logDestIdx, INFO, logFct, logStr, false)
+#define warn(logLev, logFct, logStr)                log(WARN, logFct, logStr, false)
+#define warn(logDestIdx, logLev, logFct, logStr)    log(logDestIdx, WARN, logFct, logStr, false)
+#define error(logLev, logFct, logStr)               log(ERROR, logFct, logStr, false)
+#define error(logDestIdx, logLev, logFct, logStr)   log(logDestIdx, ERROR, logFct, logStr, false)
+#define fatal(logLev, logFct, logStr)               log(FATAL, logFct, logStr, false)
+#define fatal(logDestIdx, logLev, logFct, logStr)   log(logDestIdx, FATAL, logFct, logStr, false)
+
+#define debugln(logLev, logFct, logStr)             log(DEBUG, logFct, logStr, true)
+#define debugln(logDestIdx, logLev, logFct, logStr) log(logDestIdx, DEBUG, logFct, logStr, true)
+#define infoln(logLev, logFct, logStr)              log(INFO, logFct, logStr, true)
+#define infoln(logDestIdx, logLev, logFct, logStr)  log(logDestIdx, INFO, logFct, logStr, true)
+#define warnln(logLev, logFct, logStr)              log(WARN, logFct, logStr, true)
+#define warnln(logDestIdx, logLev, logFct, logStr)  log(logDestIdx, WARN, logFct, logStr, true)
+#define errorln(logLev, logFct, logStr)             log(ERROR, logFct, logStr, true)
+#define errorln(logDestIdx, logLev, logFct, logStr) log(logDestIdx, ERROR, logFct, logStr, true)
+#define fatalln(logLev, logFct, logStr)             log(FATAL, logFct, logStr, true)
+#define fatalln(logDestIdx, logLev, logFct, logStr) log(logDestIdx, FATAL, logFct, logStr, true)
+
+#define logln(logLev, logFct, logStr)               log(logLev, logFct, logStr, true)
+#define logln(logDestIdx, logLev, logFct, logStr)   log(logDestIdx, logLev, logFct, logStr, true)
 
 class Logger {
   public:
