@@ -6,13 +6,13 @@
 # Library (KEYWORD3)
 #######################################
 
-ESP8266_Logger	  KEYWORD3
+ESP8266Logger	  KEYWORD3
 
 #######################################
 # Datatypes (KEYWORD1)
 #######################################
 
-ESP8266_Logger    KEYWORD1
+ESP8266Logger     KEYWORD1
 LogSerial         KEYWORD1
 LogLevel          KEYWORD1
 
