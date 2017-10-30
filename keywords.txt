@@ -6,24 +6,34 @@
 # Library (KEYWORD3)
 #######################################
 
-Logger	KEYWORD3
+ESP8266_Logger	  KEYWORD3
 
 #######################################
 # Datatypes (KEYWORD1)
 #######################################
 
-Logger     KEYWORD1
-LogSerial  KEYWORD1
-LogLevel   KEYWORD1
-LogDest    KEYWORD1
+ESP8266_Logger    KEYWORD1
+LogSerial         KEYWORD1
+LogLevel          KEYWORD1
 
 #######################################
 # Methods and Functions (KEYWORD2)
 #######################################
 
-regLogDest KEYWORD2
-logln      KEYWORD2
-log        KEYWORD2
+regLogDestSerial  KEYWORD2
+regLogDestWifi    KEYWORD2
+logln             KEYWORD2
+log               KEYWORD2
+debug             KEYWORD2
+info              KEYWORD2
+warn              KEYWORD2
+error             KEYWORD2
+fatal             KEYWORD2
+debugln           KEYWORD2
+infoln            KEYWORD2
+warnln            KEYWORD2
+errorln           KEYWORD2
+fatalln           KEYWORD2
 
 #######################################
 # Constants (LITERAL1)

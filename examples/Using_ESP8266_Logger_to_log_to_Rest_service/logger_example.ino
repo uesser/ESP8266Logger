@@ -1,9 +1,9 @@
-include <Logger.h>
+include <ESP8266_Logger.h>
 
 #define LOG_HOST 123.123.123.123
 #define LOG_PORT 3000
 
-Logger log;
+ESP8266_Logger log;
 
 void setup() {
   String logFct = "SETUP";
