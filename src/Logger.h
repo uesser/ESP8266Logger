@@ -11,7 +11,7 @@ String logLevelStr[] { "DEBUG", "INFO", "WARNING", "ERROR", "FATAL" };
 
 typedef struct {
   LogSerial    logSerial;
-  WifiClient * logClient;
+  WiFiClient * logClient;
   String       logHost;
   String       logPort;
   String       logURL;
