@@ -3,11 +3,10 @@
 
 #include <Arduino.h>
 #include <ESP8266WiFi.h>
+#include <LinkedList.h>
 
 enum LogSerial { LOG_UNDEF, LOG_SERIAL, LOG_SERIAL1 };
-
-enum   LogLevel      {  DEBUG,   INFO,   WARNING,   ERROR,   FATAL  };
-String logLevelStr[] { "DEBUG", "INFO", "WARNING", "ERROR", "FATAL" };
+enum LogLevel  { DEBUG, INFO, WARNING, ERROR, FATAL  };
 
 typedef struct {
   LogSerial    logSerial;
@@ -23,9 +22,9 @@ typedef struct {
   LogLevel     logLevel;
 } LogDest;
 
-#define MAX_LOG_DEST_ENTRIES 10;
+#define MAX_LOG_DEST_ENTRIES 10
 
-class Logger {
+class ESP8266Logger {
   public:
     ESP8266Logger();
     ~ESP8266Logger();
@@ -42,8 +41,8 @@ class Logger {
     void debug(int logDestIdx, LogLevel logLev, String logFct, String logStr)   { log(logDestIdx, DEBUG, logFct, logStr, false); }
     void info(LogLevel logLev, String logFct, String logStr)                    { log(INFO, logFct, logStr, false); }
     void info(int logDestIdx, LogLevel logLev, String logFct, String logStr)    { log(logDestIdx, INFO, logFct, logStr, false); }
-    void warn(LogLevel logLev, String logFct, String logStr)                    { log(WARN, logFct, logStr, false); }
-    void warn(int logDestIdx, LogLevel logLev, String logFct, String logStr)    { log(logDestIdx, WARN, logFct, logStr, false); }
+    void warn(LogLevel logLev, String logFct, String logStr)                    { log(WARNING, logFct, logStr, false); }
+    void warn(int logDestIdx, LogLevel logLev, String logFct, String logStr)    { log(logDestIdx, WARNING, logFct, logStr, false); }
     void error(LogLevel logLev, String logFct, String logStr)                   { log(ERROR, logFct, logStr, false); }
     void error(int logDestIdx, LogLevel logLev, String logFct, String logStr)   { log(logDestIdx, ERROR, logFct, logStr, false); }
     void fatal(LogLevel logLev, String logFct, String logStr)                   { log(FATAL, logFct, logStr, false); }
@@ -53,8 +52,8 @@ class Logger {
     void debugln(int logDestIdx, LogLevel logLev, String logFct, String logStr) { log(logDestIdx, DEBUG, logFct, logStr, true); }
     void infoln(LogLevel logLev, String logFct, String logStr)                  { log(INFO, logFct, logStr, true); }
     void infoln(int logDestIdx, LogLevel logLev, String logFct, String logStr)  { log(logDestIdx, INFO, logFct, logStr, true); }
-    void warnln(LogLevel logLev, String logFct, String logStr)                  { log(WARN, logFct, logStr, true); }
-    void warnln(int logDestIdx, LogLevel logLev, String logFct, String logStr)  { log(logDestIdx, WARN, logFct, logStr, true); }
+    void warnln(LogLevel logLev, String logFct, String logStr)                  { log(WARNING, logFct, logStr, true); }
+    void warnln(int logDestIdx, LogLevel logLev, String logFct, String logStr)  { log(logDestIdx, WARNING, logFct, logStr, true); }
     void errorln(LogLevel logLev, String logFct, String logStr)                 { log(ERROR, logFct, logStr, true); }
     void errorln(int logDestIdx, LogLevel logLev, String logFct, String logStr) { log(logDestIdx, ERROR, logFct, logStr, true); }
     void fatalln(LogLevel logLev, String logFct, String logStr)                 { log(FATAL, logFct, logStr, true); }
@@ -65,6 +64,10 @@ class Logger {
 
   protected:
     LinkedList<LogDest> _logDestList;
-}
+    const char*         _logLevelStr[5] = { "DEBUG", "INFO", "WARNING", "ERROR", "FATAL" };
+    
+  private:
+    String replaceURL(String url);
+};
 
 #endif  // __ESP8266LOGGER__

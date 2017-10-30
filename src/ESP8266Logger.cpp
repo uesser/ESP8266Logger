@@ -1,26 +1,25 @@
 #include "ESP8266Logger.h"
 
 ESP8266Logger::ESP8266Logger()
-:_logDestList(0)
 {
   _logDestList = LinkedList<LogDest>();
 }
 
 ESP8266Logger::~ESP8266Logger() {
   for (int i = 0; i < _logDestList.size(); i++) {
-    if (_logDestList[i].logClient != 0) {
-      if (_logDestList[i].logClient->connected()) {
-        _logDestList[i].logClient->flush();
-        _logDestList[i].logClient->close();
+    if (_logDestList.get(i).logClient != 0) {
+      if (_logDestList.get(i).logClient->connected()) {
+        _logDestList.get(i).logClient->flush();
+        _logDestList.get(i).logClient->stop();
       }
-      delete _logDestList[i].logClient;
+      delete _logDestList.get(i).logClient;
     }
   }
   _logDestList.clear();
 }
 
 int ESP8266Logger::regLogDestSerial(LogLevel logLev, LogSerial logSer) {
-  if (_logDestList.size() < MAX_LOG_DEST_ENTRIES {
+  if (_logDestList.size() < MAX_LOG_DEST_ENTRIES) {
     LogDest logDest;
 
     logDest.logClient = 0;
@@ -69,86 +68,111 @@ int ESP8266Logger::regLogDestWifi(LogLevel logLev, String logHost, String logPor
   }
 }
 
-void ESP8266Logger::log(int logDestIdx, LogLevel logLev, String LogFct, String logStr, boolean prtln) {
+void ESP8266Logger::log(int logDestIdx, LogLevel logLev, String logFct, String logStr, boolean prtln) {
   if (logDestIdx >= 0 && logDestIdx < _logDestList.size() &&
-      (_logDestList[logDestIdx].logSerial != 0 || _logDestList[logDestIdx].logClient != 0) {
+      (_logDestList.get(logDestIdx).logSerial != 0 || _logDestList.get(logDestIdx).logClient != 0)) {
     log(logLev, logFct, logStr, prtln);
   }
 }
 
-void ESP8266Logger::log(LogLevel logLev, String LogFct, String logStr, boolean prtln) {
+void ESP8266Logger::log(LogLevel logLev, String logFct, String logStr, boolean prtln) {
   int     i        = 0;
   boolean replaced = false;
+  
+  static String sURL;
 
   while (i < _logDestList.size()) {
-    if (logLev >= _logDestList[i].logLevel) {
-      if (_logDestList[i].logSerial == LOG_SERIAL) {
-        if (prtln)
-          Serial.println(logLev + " - " + logFct + " - " + logStr);
-        else
-          Serial.print(logLev + " - " + logFct + " - " + logStr);
-      }
-      if (_logDestList[i].logSerial == LOG_SERIAL1) {
-        if (prtln)
-          Serial1.println(logLev + " - " + logFct + " - " + logStr);
-        else
-          Serial1.print(logLev + " - " + logFct + " - " + logStr);
-      }
-
-      if (_logDestList[i].logClient != 0) {
-        if (! _logDestList[i].logClient->connected()) {
-          _logDestList[i].logClient->connect(_logDestList[i].logHost.c_str(), _logDestList[i].logPort.toInt());
-  //        _logDestList[i].logClient->setNoDelay(true);
-        }
-        if (_logDestList[i].logClient->connected()) {
-          if (! replaced) {
-            String sURL = "GET " + _logDestList[i].logURL + "?" +
-                          "logFile=" + _logDestList[i].logFileName + "&" +
-                          _logDestList[i].logLevelParam + "=" + logLevelStr[logLev] + "&" +
-                          _logDestList[i].logFunctionParam + "=" + logFct + "&" +
-                          (prtln) ? _logDestList[i].logStrlnParam : _logDestList[i].logStrParam + "=" + logStr +
-                          " HTTP/1.1\r\nHost: " + _logDestList[i].logHost + ":" + _logDestList[i].logPort +
-                          "\r\nConnection: Keep-Alive\r\n\r\n";
-
-            sURL.replace(" " , "%20");
-            sURL.replace("!" , "%21");
-            sURL.replace("\"", "%22");
-            sURL.replace("#" , "%23");
-            sURL.replace("$" , "%24");
-            sURL.replace("%" , "%25");
-            sURL.replace("&" , "%26");
-            sURL.replace("'" , "%27");
-            sURL.replace("(" , "%28");
-            sURL.replace(")" , "%29");
-            sURL.replace("*" , "%2A");
-            sURL.replace("+" , "%2B");
-            sURL.replace("," , "%2C");
-            sURL.replace("-" , "%2D");
-            sURL.replace("." , "%2E");
-            sURL.replace("/" , "%2F");
-            sURL.replace(":" , "%3A");
-            sURL.replace(";" , "%3B");
-            sURL.replace("<" , "%3C");
-            sURL.replace("=" , "%3D");
-            sURL.replace(">" , "%3E");
-            sURL.replace("?" , "%3F");
-            sURL.replace("@" , "%40");
-            sURL.replace("[" , "%5B");
-            sURL.replace("\\", "%5C");
-            sURL.replace("]" , "%5D");
-            sURL.replace("{" , "%7B");
-            sURL.replace("|" , "%7C");
-            sURL.replace("}" , "%7D");
-
-            replaced = true;
+    if (logLev >= _logDestList.get(i).logLevel) {
+      if (_logDestList.get(i).logSerial == LOG_SERIAL) {
+        if (prtln) {
+          if (logStr.length() > 0) {
+            Serial.println(logLev + " - " + logFct + " - " + logStr);
           }
+          else {
+            Serial.println();
+          }
+        }
+        else {
+          if (logStr.length() > 0) {
+            Serial.print(logLev + " - " + logFct + " - " + logStr);
+          }
+        }
+      }
+      if (_logDestList.get(i).logSerial == LOG_SERIAL1) {
+        if (prtln) {
+          if (logStr.length() > 0) {
+            Serial1.println(logLev + " - " + logFct + " - " + logStr);
+          }
+          else {
+            Serial1.println();
+          }
+        }
+        else {
+          if (logStr.length() > 0) {
+            Serial1.print(logLev + " - " + logFct + " - " + logStr);
+          }
+        }
+      }
 
-          _logDestList[i].logClient->print(sURL);
-          _logDestList[i].logClient->flush();
+      if (_logDestList.get(i).logClient != 0 && logStr.length() > 0) {
+  	    if (! _logDestList.get(i).logClient->connected()) {
+          _logDestList.get(i).logClient->connect(_logDestList.get(i).logHost.c_str(), _logDestList.get(i).logPort.toInt());
+  //        _logDestList.get(i).logClient->setNoDelay(true);
+        }
+        if (_logDestList.get(i).logClient->connected()) {
+					sURL = String("GET ") + _logDestList.get(i).logURL + "?" +
+							 "logFile=" + replaceURL(_logDestList.get(i).logFileName) + "&" +
+							 _logDestList.get(i).logLevelParam + "=" + String(_logLevelStr[logLev]) + "&" +
+							 _logDestList.get(i).logFunctionParam + "=" + replaceURL(logFct) + "&" +
+							 ((prtln) ? _logDestList.get(i).logStrlnParam : _logDestList.get(i).logStrParam) + "=" + replaceURL(logStr) +
+							 " HTTP/1.1\r\nHost: " + _logDestList.get(i).logHost + ":" + _logDestList.get(i).logPort +
+							 "\r\nConnection: Keep-Alive\r\n\r\n";
+
+#ifdef SERIAL_DEBUGGER
+          Serial.print("replaced URL: ");
+          Serial.println(sURL);
+#endif
+          
+					_logDestList.get(i).logClient->print(sURL);
+          _logDestList.get(i).logClient->flush();
         }
       }
     }
 
     i++;
   }
+}
+
+String ESP8266Logger::replaceURL(String url) {
+  url.replace("%" , "%25");
+  url.replace(" " , "%20");
+  url.replace("!" , "%21");
+  url.replace("\"", "%22");
+  url.replace("#" , "%23");
+  url.replace("$" , "%24");
+  url.replace("&" , "%26");
+  url.replace("'" , "%27");
+  url.replace("(" , "%28");
+  url.replace(")" , "%29");
+  url.replace("*" , "%2A");
+  url.replace("+" , "%2B");
+  url.replace("," , "%2C");
+  url.replace("-" , "%2D");
+  url.replace("." , "%2E");
+  url.replace("/" , "%2F");
+  url.replace(":" , "%3A");
+  url.replace(";" , "%3B");
+  url.replace("<" , "%3C");
+  url.replace("=" , "%3D");
+  url.replace(">" , "%3E");
+  url.replace("?" , "%3F");
+  url.replace("@" , "%40");
+  url.replace("[" , "%5B");
+  url.replace("\\", "%5C");
+  url.replace("]" , "%5D");
+  url.replace("{" , "%7B");
+  url.replace("|" , "%7C");
+  url.replace("}" , "%7D");
+  
+  return url;
 }
