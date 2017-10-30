@@ -1,9 +1,9 @@
-include <Logger.h>
+include <ESP8266Logger.h>
 
 #define LOG_HOST 123.123.123.123
 #define LOG_PORT 3000
 
-Logger log;
+ESP8266Logger log;
 
 void setup() {
   String logFct = "SETUP";
@@ -11,7 +11,7 @@ void setup() {
   // register some log destinations (Serial, Serial1 and a Restservice)
   int log2Serial = regLogDestSerial(DEBUG, LOG_SERIAL);
   regLogDestSerial(FATAL, LOG_SERIAL1);
-  regLogDestWifi(INFO, LOG_HOST, LOG_PORT, "/log", "logLev", "logFct", "logStr", "logStrln");
+  regLogDestWifi(INFO, LOG_HOST, LOG_PORT, "/log", "ESP8266Logger_example_logfile.log", logLev", "logFct", "logStr", "logStrln");
 
   // will be logged to Serial, but not to Serial1 and Restservice because Serial is the only one defined for logging DEBUG info
   log.debug(logFct, "some debug info");
