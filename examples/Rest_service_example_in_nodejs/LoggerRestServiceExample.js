@@ -1,7 +1,8 @@
 var express = require('express');
 var fs = require('fs');
 
-var buffer = new Buffer();
+var buffer      = new Buffer();
+var logFileName = "/var/log/logfile.log";
 
 var app = express();
 
@@ -14,10 +15,10 @@ app.get('/log', function(request, response) {
   var minute = now.getMinutes();
   var second = now.getSeconds();
   var day0  = ((day < 10) ? "0" : "");
-  var month0  = ((month < 10) ? ".0" : "."); 
-  var hour0  = ((hour < 10) ? "0" : ""); 
-  var minute0  = ((minute < 10) ? ":0" : ":"); 
-  var second0  = ((second < 10) ? ":0" : ":"); 
+  var month0  = ((month < 10) ? ".0" : ".");
+  var hour0  = ((hour < 10) ? "0" : "");
+  var minute0  = ((minute < 10) ? ":0" : ":");
+  var second0  = ((second < 10) ? ":0" : ":");
   var output = day0 + day + month0 + month + "." + year + " " + hour0 + hour + minute0 + minute + second0 + second;
 
   if (request.query.logLev) {
@@ -36,11 +37,15 @@ app.get('/log', function(request, response) {
 //  console.log("req.query: %s", JSON.stringify(req.query));
 
   buffer = new Buffer.from(output);
-  fs.appendFileSync("/var/log/logfile.log", buffer);
+
+  if (request.query.logFile) {
+    logFileName = request.query.logFile;
+  }
+  fs.appendFileSync(logFileName, buffer);
 
 //  console.log("File written: %s", buffer);
 
-  return res.send();
+  return response.send();
 });
 
 app.listen(3000);
