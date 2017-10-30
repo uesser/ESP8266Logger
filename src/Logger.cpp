@@ -1,23 +1,25 @@
-#include "Logger.h"
+#include "ESP8266Logger.h"
 
-Logger::Logger()
+ESP8266Logger::ESP8266Logger()
 :_logDestList(0)
 {
   _logDestList = LinkedList<LogDest>();
 }
 
-Logger::~Logger() {
+ESP8266Logger::~ESP8266Logger() {
   for (int i = 0; i < _logDestList.size(); i++) {
-    if (_logDestList[i].logClient != 0 && _logDestList[i].logClient.connected()) {
-      _logDestList[i].logClient.flush();
-      _logDestList[i].logClient.close();
+    if (_logDestList[i].logClient != 0) {
+      if (_logDestList[i].logClient->connected()) {
+        _logDestList[i].logClient->flush();
+        _logDestList[i].logClient->close();
+      }
       delete _logDestList[i].logClient;
     }
   }
   _logDestList.clear();
 }
 
-int Logger::regLogDestSerial(LogLevel logLev, LogSerial logSer) {
+int ESP8266Logger::regLogDestSerial(LogLevel logLev, LogSerial logSer) {
   if (_logDestList.size() < MAX_LOG_DEST_ENTRIES {
     LogDest logDest;
 
@@ -37,17 +39,18 @@ int Logger::regLogDestSerial(LogLevel logLev, LogSerial logSer) {
   }
 }
 
-int Logger::regLogDestWifi(LogLevel logLev, String logHost, String logPort, String logURL,
-                           String logLevelParam, String logFunctionParam, String logStrParam,
-                           String logStrlnParam) {
+int ESP8266Logger::regLogDestWifi(LogLevel logLev, String logHost, String logPort, String logURL,
+                                  String logFileName, String logLevelParam, String logFunctionParam,
+                                  String logStrParam, String logStrlnParam) {
   if (_logDestList.size() < MAX_LOG_DEST_ENTRIES) {
     LogDest logDest;
 
     logDest.logSerial        = LOG_UNDEF;
-    logDest.logClient        = new WifiClient;
+    logDest.logClient        = new WiFiClient;
     logDest.logHost          = logHost;
     logDest.logPort          = logPort;
     logDest.logURL           = logURL;
+    logDest.logFileName      = logFileName;
     logDest.logLevelParam    = logLevelParam;
     logDest.logFunctionParam = logFunctionParam;
     logDest.logStrParam      = logStrParam;
@@ -66,14 +69,14 @@ int Logger::regLogDestWifi(LogLevel logLev, String logHost, String logPort, Stri
   }
 }
 
-void Logger::log(int logDestIdx, LogLevel logLev, String LogFct, String logStr, boolean prtln) {
+void ESP8266Logger::log(int logDestIdx, LogLevel logLev, String LogFct, String logStr, boolean prtln) {
   if (logDestIdx >= 0 && logDestIdx < _logDestList.size() &&
       (_logDestList[logDestIdx].logSerial != 0 || _logDestList[logDestIdx].logClient != 0) {
     log(logLev, logFct, logStr, prtln);
   }
 }
 
-void Logger::log(LogLevel logLev, String LogFct, String logStr, boolean prtln) {
+void ESP8266Logger::log(LogLevel logLev, String LogFct, String logStr, boolean prtln) {
   int     i        = 0;
   boolean replaced = false;
 
@@ -93,13 +96,14 @@ void Logger::log(LogLevel logLev, String LogFct, String logStr, boolean prtln) {
       }
 
       if (_logDestList[i].logClient != 0) {
-        if (! _logDestList[i].logClient.connected()) {
-          _logDestList[i].logClient.connect(_logDestList[i].logHost.c_str(), _logDestList[i].logPort.toInt());
-  //        _logDestList[i].logClient.setNoDelay(true);
+        if (! _logDestList[i].logClient->connected()) {
+          _logDestList[i].logClient->connect(_logDestList[i].logHost.c_str(), _logDestList[i].logPort.toInt());
+  //        _logDestList[i].logClient->setNoDelay(true);
         }
-        if (_logDestList[i].logClient.connected()) {
+        if (_logDestList[i].logClient->connected()) {
           if (! replaced) {
             String sURL = "GET " + _logDestList[i].logURL + "?" +
+                          "logFile=" + _logDestList[i].logFileName + "&" +
                           _logDestList[i].logLevelParam + "=" + logLevelStr[logLev] + "&" +
                           _logDestList[i].logFunctionParam + "=" + logFct + "&" +
                           (prtln) ? _logDestList[i].logStrlnParam : _logDestList[i].logStrParam + "=" + logStr +
@@ -139,8 +143,8 @@ void Logger::log(LogLevel logLev, String LogFct, String logStr, boolean prtln) {
             replaced = true;
           }
 
-          _logDestList[i].logClient.print(sURL);
-          _logDestList[i].logClient.flush();
+          _logDestList[i].logClient->print(sURL);
+          _logDestList[i].logClient->flush();
         }
       }
     }
