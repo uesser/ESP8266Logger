@@ -68,6 +68,30 @@ int ESP8266Logger::regLogDestWifi(LogLevel logLev, String logHost, String logPor
   }
 }
 
+void ESP8266Logger::unregLogDestSerial(LogSerial logSer) {
+  int i = 0;
+  
+  while (i < _logDestList.size()) {
+    if (_logDestList.get(i).logSerial == logSer) {
+      _logDestList.remove(i);
+    }
+    
+    i++;
+  }
+}
+
+void ESP8266Logger::unregLogDestWifi(String logHost, String logPort) {
+  int i = 0;
+  
+  while (i < _logDestList.size()) {
+    if (_logDestList.get(i).logHost == logHost && _logDestList.get(i).logPort == logPort) {
+      _logDestList.remove(i);
+    }
+    
+    i++;
+  }
+}
+
 void ESP8266Logger::log(int logDestIdx, LogLevel logLev, String logFct, String logStr, boolean prtln) {
   if (logDestIdx >= 0 && logDestIdx < _logDestList.size() &&
       (_logDestList.get(logDestIdx).logSerial != 0 || _logDestList.get(logDestIdx).logClient != 0)) {

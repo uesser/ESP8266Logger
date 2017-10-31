@@ -34,33 +34,36 @@ class ESP8266Logger {
                        String logFileName, String logLevelParam, String logFunctionParam,
                        String logStrParam, String logStrlnParam);
 
+    void unregLogDestSerial(LogSerial logSer);
+    void unregLogDestWifi(String logHost, String logPort);
+
     void log(LogLevel logLev, String logFct, String logStr, boolean prtln = false);
     void log(int logDestIdx, LogLevel logLev, String logFct, String logStr, boolean prtln = false);
 
-    void debug(LogLevel logLev, String logFct, String logStr)                   { log(DEBUG, logFct, logStr, false); }
-    void debug(int logDestIdx, LogLevel logLev, String logFct, String logStr)   { log(logDestIdx, DEBUG, logFct, logStr, false); }
-    void info(LogLevel logLev, String logFct, String logStr)                    { log(INFO, logFct, logStr, false); }
-    void info(int logDestIdx, LogLevel logLev, String logFct, String logStr)    { log(logDestIdx, INFO, logFct, logStr, false); }
-    void warn(LogLevel logLev, String logFct, String logStr)                    { log(WARNING, logFct, logStr, false); }
-    void warn(int logDestIdx, LogLevel logLev, String logFct, String logStr)    { log(logDestIdx, WARNING, logFct, logStr, false); }
-    void error(LogLevel logLev, String logFct, String logStr)                   { log(ERROR, logFct, logStr, false); }
-    void error(int logDestIdx, LogLevel logLev, String logFct, String logStr)   { log(logDestIdx, ERROR, logFct, logStr, false); }
-    void fatal(LogLevel logLev, String logFct, String logStr)                   { log(FATAL, logFct, logStr, false); }
-    void fatal(int logDestIdx, LogLevel logLev, String logFct, String logStr)   { log(logDestIdx, FATAL, logFct, logStr, false); }
+    void logln(LogLevel logLev, String logFct, String logStr)                 { log(logLev, logFct, logStr, true); }
+    void logln(int logDestIdx, LogLevel logLev, String logFct, String logStr) { log(logDestIdx, logLev, logFct, logStr, true); }
 
-    void debugln(LogLevel logLev, String logFct, String logStr)                 { log(DEBUG, logFct, logStr, true); }
-    void debugln(int logDestIdx, LogLevel logLev, String logFct, String logStr) { log(logDestIdx, DEBUG, logFct, logStr, true); }
-    void infoln(LogLevel logLev, String logFct, String logStr)                  { log(INFO, logFct, logStr, true); }
-    void infoln(int logDestIdx, LogLevel logLev, String logFct, String logStr)  { log(logDestIdx, INFO, logFct, logStr, true); }
-    void warnln(LogLevel logLev, String logFct, String logStr)                  { log(WARNING, logFct, logStr, true); }
-    void warnln(int logDestIdx, LogLevel logLev, String logFct, String logStr)  { log(logDestIdx, WARNING, logFct, logStr, true); }
-    void errorln(LogLevel logLev, String logFct, String logStr)                 { log(ERROR, logFct, logStr, true); }
-    void errorln(int logDestIdx, LogLevel logLev, String logFct, String logStr) { log(logDestIdx, ERROR, logFct, logStr, true); }
-    void fatalln(LogLevel logLev, String logFct, String logStr)                 { log(FATAL, logFct, logStr, true); }
-    void fatalln(int logDestIdx, LogLevel logLev, String logFct, String logStr) { log(logDestIdx, FATAL, logFct, logStr, true); }
-
-    void logln(LogLevel logLev, String logFct, String logStr)                   { log(logLev, logFct, logStr, true); }
-    void logln(int logDestIdx, LogLevel logLev, String logFct, String logStr)   { log(logDestIdx, logLev, logFct, logStr, true); }
+    void debug(String logFct, String logStr)                                  { log(DEBUG, logFct, logStr, false); }
+    void debug(int logDestIdx, String logFct, String logStr)                  { log(logDestIdx, DEBUG, logFct, logStr, false); }
+    void info(String logFct, String logStr)                                   { log(INFO, logFct, logStr, false); }
+    void info(int logDestIdx, String logFct, String logStr)                   { log(logDestIdx, INFO, logFct, logStr, false); }
+    void warn(String logFct, String logStr)                                   { log(WARNING, logFct, logStr, false); }
+    void warn(int logDestIdx, String logFct, String logStr)                   { log(logDestIdx, WARNING, logFct, logStr, false); }
+    void error(String logFct, String logStr)                                  { log(ERROR, logFct, logStr, false); }
+    void error(int logDestIdx, String logFct, String logStr)                  { log(logDestIdx, ERROR, logFct, logStr, false); }
+    void fatal(String logFct, String logStr)                                  { log(FATAL, logFct, logStr, false); }
+    void fatal(int logDestIdx, String logFct, String logStr)                  { log(logDestIdx, FATAL, logFct, logStr, false); }
+                                                                              
+    void debugln(String logFct, String logStr)                                { log(DEBUG, logFct, logStr, true); }
+    void debugln(int logDestIdx, String logFct, String logStr)                { log(logDestIdx, DEBUG, logFct, logStr, true); }
+    void infoln(String logFct, String logStr)                                 { log(INFO, logFct, logStr, true); }
+    void infoln(int logDestIdx, String logFct, String logStr)                 { log(logDestIdx, INFO, logFct, logStr, true); }
+    void warnln(String logFct, String logStr)                                 { log(WARNING, logFct, logStr, true); }
+    void warnln(int logDestIdx, String logFct, String logStr)                 { log(logDestIdx, WARNING, logFct, logStr, true); }
+    void errorln(String logFct, String logStr)                                { log(ERROR, logFct, logStr, true); }
+    void errorln(int logDestIdx, String logFct, String logStr)                { log(logDestIdx, ERROR, logFct, logStr, true); }
+    void fatalln(String logFct, String logStr)                                { log(FATAL, logFct, logStr, true); }
+    void fatalln(int logDestIdx, String logFct, String logStr)                { log(logDestIdx, FATAL, logFct, logStr, true); }
 
   protected:
     LinkedList<LogDest> _logDestList;
