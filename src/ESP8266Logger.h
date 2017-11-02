@@ -37,8 +37,11 @@ class ESP8266Logger {
     void unregLogDestSerial(LogSerial logSer);
     void unregLogDestWifi(String logHost, String logPort);
 
-    void log(LogLevel logLev, String logFct, String logStr, boolean prtln = false);
-    void log(int logDestIdx, LogLevel logLev, String logFct, String logStr, boolean prtln = false);
+    void log(LogLevel logLev, String logFct, String logStr, boolean prtln = false, int logDestIdx = -1);
+
+    void log(int logDestIdx, LogLevel logLev, String logFct, String logStr, boolean prtln) {
+      log(logLev, logFct, logStr, prtln, logDestIdx);
+    }
 
     void logln(LogLevel logLev, String logFct, String logStr)                 { log(logLev, logFct, logStr, true); }
     void logln(int logDestIdx, LogLevel logLev, String logFct, String logStr) { log(logDestIdx, logLev, logFct, logStr, true); }

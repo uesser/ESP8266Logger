@@ -1,5 +1,47 @@
 #include "ESP8266Logger.h"
 
+//_________________________________________________________________________
+// PRIVATE METHODS
+//_________________________________________________________________________
+
+String ESP8266Logger::replaceURL(String url) {
+  url.replace("%" , "%25");
+  url.replace(" " , "%20");
+  url.replace("!" , "%21");
+  url.replace("\"", "%22");
+  url.replace("#" , "%23");
+  url.replace("$" , "%24");
+  url.replace("&" , "%26");
+  url.replace("'" , "%27");
+  url.replace("(" , "%28");
+  url.replace(")" , "%29");
+  url.replace("*" , "%2A");
+  url.replace("+" , "%2B");
+  url.replace("," , "%2C");
+  url.replace("-" , "%2D");
+  url.replace("." , "%2E");
+  url.replace("/" , "%2F");
+  url.replace(":" , "%3A");
+  url.replace(";" , "%3B");
+  url.replace("<" , "%3C");
+  url.replace("=" , "%3D");
+  url.replace(">" , "%3E");
+  url.replace("?" , "%3F");
+  url.replace("@" , "%40");
+  url.replace("[" , "%5B");
+  url.replace("\\", "%5C");
+  url.replace("]" , "%5D");
+  url.replace("{" , "%7B");
+  url.replace("|" , "%7C");
+  url.replace("}" , "%7D");
+  
+  return url;
+}
+
+//_________________________________________________________________________
+// PUBLIC METHODS
+//_________________________________________________________________________
+
 ESP8266Logger::ESP8266Logger()
 {
   _logDestList = LinkedList<LogDest>();
@@ -92,25 +134,21 @@ void ESP8266Logger::unregLogDestWifi(String logHost, String logPort) {
   }
 }
 
-void ESP8266Logger::log(int logDestIdx, LogLevel logLev, String logFct, String logStr, boolean prtln) {
-  if (logDestIdx >= 0 && logDestIdx < _logDestList.size() &&
-      (_logDestList.get(logDestIdx).logSerial != 0 || _logDestList.get(logDestIdx).logClient != 0)) {
-    log(logLev, logFct, logStr, prtln);
-  }
-}
-
-void ESP8266Logger::log(LogLevel logLev, String logFct, String logStr, boolean prtln) {
+void ESP8266Logger::log(LogLevel logLev, String logFct, String logStr, boolean prtln, int logDestIdx) {
   int     i        = 0;
   boolean replaced = false;
   
   static String sURL;
 
+  if (logDestIdx >= 0)
+    i = logDestIdx;
+  
   while (i < _logDestList.size()) {
     if (logLev >= _logDestList.get(i).logLevel) {
       if (_logDestList.get(i).logSerial == LOG_SERIAL) {
         if (prtln) {
           if (logStr.length() > 0) {
-            Serial.println(logLev + " - " + logFct + " - " + logStr);
+            Serial.println(String(_logLevelStr[logLev]) + " - " + logFct + " - " + logStr);
           }
           else {
             Serial.println();
@@ -118,14 +156,14 @@ void ESP8266Logger::log(LogLevel logLev, String logFct, String logStr, boolean p
         }
         else {
           if (logStr.length() > 0) {
-            Serial.print(logLev + " - " + logFct + " - " + logStr);
+            Serial.print(String(_logLevelStr[logLev]) + " - " + logFct + " - " + logStr);
           }
         }
       }
       if (_logDestList.get(i).logSerial == LOG_SERIAL1) {
         if (prtln) {
           if (logStr.length() > 0) {
-            Serial1.println(logLev + " - " + logFct + " - " + logStr);
+            Serial1.println(String(_logLevelStr[logLev]) + " - " + logFct + " - " + logStr);
           }
           else {
             Serial1.println();
@@ -133,12 +171,12 @@ void ESP8266Logger::log(LogLevel logLev, String logFct, String logStr, boolean p
         }
         else {
           if (logStr.length() > 0) {
-            Serial1.print(logLev + " - " + logFct + " - " + logStr);
+            Serial1.print(String(_logLevelStr[logLev]) + " - " + logFct + " - " + logStr);
           }
         }
       }
 
-      if (_logDestList.get(i).logClient != 0 && logStr.length() > 0) {
+      if (_logDestList.get(i).logClient != 0) {
   	    if (! _logDestList.get(i).logClient->connected()) {
           _logDestList.get(i).logClient->connect(_logDestList.get(i).logHost.c_str(), _logDestList.get(i).logPort.toInt());
   //        _logDestList.get(i).logClient->setNoDelay(true);
@@ -147,10 +185,18 @@ void ESP8266Logger::log(LogLevel logLev, String logFct, String logStr, boolean p
 					sURL = String("GET ") + _logDestList.get(i).logURL + "?" +
 							 "logFile=" + replaceURL(_logDestList.get(i).logFileName) + "&" +
 							 _logDestList.get(i).logLevelParam + "=" + String(_logLevelStr[logLev]) + "&" +
-							 _logDestList.get(i).logFunctionParam + "=" + replaceURL(logFct) + "&" +
-							 ((prtln) ? _logDestList.get(i).logStrlnParam : _logDestList.get(i).logStrParam) + "=" + replaceURL(logStr) +
-							 " HTTP/1.1\r\nHost: " + _logDestList.get(i).logHost + ":" + _logDestList.get(i).logPort +
-							 "\r\nConnection: Keep-Alive\r\n\r\n";
+							 _logDestList.get(i).logFunctionParam + "=" + replaceURL(logFct);
+
+          if (logStr.length() > 0) {
+            sURL += "&" + 
+                    ((prtln) ? _logDestList.get(i).logStrlnParam : _logDestList.get(i).logStrParam) + "=" + replaceURL(logStr) +
+							      " HTTP/1.1\r\nHost: " + _logDestList.get(i).logHost + ":" + _logDestList.get(i).logPort +
+							      "\r\nConnection: Keep-Alive\r\n\r\n";
+          }
+          else {
+            sURL += " HTTP/1.1\r\nHost: " + _logDestList.get(i).logHost + ":" + _logDestList.get(i).logPort +
+							      "\r\nConnection: Keep-Alive\r\n\r\n";
+          }
 
 #ifdef SERIAL_DEBUGGER
           Serial.print("replaced URL: ");
@@ -163,40 +209,9 @@ void ESP8266Logger::log(LogLevel logLev, String logFct, String logStr, boolean p
       }
     }
 
-    i++;
+    if (logDestIdx >= 0)
+      i = _logDestList.size() + 1;
+    else
+      i++;
   }
-}
-
-String ESP8266Logger::replaceURL(String url) {
-  url.replace("%" , "%25");
-  url.replace(" " , "%20");
-  url.replace("!" , "%21");
-  url.replace("\"", "%22");
-  url.replace("#" , "%23");
-  url.replace("$" , "%24");
-  url.replace("&" , "%26");
-  url.replace("'" , "%27");
-  url.replace("(" , "%28");
-  url.replace(")" , "%29");
-  url.replace("*" , "%2A");
-  url.replace("+" , "%2B");
-  url.replace("," , "%2C");
-  url.replace("-" , "%2D");
-  url.replace("." , "%2E");
-  url.replace("/" , "%2F");
-  url.replace(":" , "%3A");
-  url.replace(";" , "%3B");
-  url.replace("<" , "%3C");
-  url.replace("=" , "%3D");
-  url.replace(">" , "%3E");
-  url.replace("?" , "%3F");
-  url.replace("@" , "%40");
-  url.replace("[" , "%5B");
-  url.replace("\\", "%5C");
-  url.replace("]" , "%5D");
-  url.replace("{" , "%7B");
-  url.replace("|" , "%7C");
-  url.replace("}" , "%7D");
-  
-  return url;
 }
