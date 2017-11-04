@@ -44,10 +44,13 @@ String ESP8266Logger::replaceURL(String url) {
 
 ESP8266Logger::ESP8266Logger()
 {
+#ifndef ENERGY_EFFICIENT  
   _logDestList = LinkedList<LogDest>();
+#endif
 }
 
 ESP8266Logger::~ESP8266Logger() {
+#ifndef ENERGY_EFFICIENT  
   for (int i = 0; i < _logDestList.size(); i++) {
     if (_logDestList.get(i).logClient != 0) {
       if (_logDestList.get(i).logClient->connected()) {
@@ -58,9 +61,11 @@ ESP8266Logger::~ESP8266Logger() {
     }
   }
   _logDestList.clear();
+#endif
 }
 
 int ESP8266Logger::regLogDestSerial(LogLevel logLev, LogSerial logSer) {
+#ifndef ENERGY_EFFICIENT  
   if (_logDestList.size() < MAX_LOG_DEST_ENTRIES) {
     LogDest logDest;
 
@@ -78,11 +83,13 @@ int ESP8266Logger::regLogDestSerial(LogLevel logLev, LogSerial logSer) {
   else {
       return -2;
   }
+#endif
 }
 
 int ESP8266Logger::regLogDestWifi(LogLevel logLev, String logHost, String logPort, String logURL,
                                   String logFileName, String logLevelParam, String logFunctionParam,
                                   String logStrParam, String logStrlnParam) {
+#ifndef ENERGY_EFFICIENT  
   if (_logDestList.size() < MAX_LOG_DEST_ENTRIES) {
     LogDest logDest;
 
@@ -108,9 +115,11 @@ int ESP8266Logger::regLogDestWifi(LogLevel logLev, String logHost, String logPor
   else {
       return -2;
   }
+#endif
 }
 
 void ESP8266Logger::unregLogDestSerial(LogSerial logSer) {
+#ifndef ENERGY_EFFICIENT  
   int i = 0;
   
   while (i < _logDestList.size()) {
@@ -120,9 +129,11 @@ void ESP8266Logger::unregLogDestSerial(LogSerial logSer) {
     
     i++;
   }
+#endif
 }
 
 void ESP8266Logger::unregLogDestWifi(String logHost, String logPort) {
+#ifndef ENERGY_EFFICIENT  
   int i = 0;
   
   while (i < _logDestList.size()) {
@@ -132,9 +143,11 @@ void ESP8266Logger::unregLogDestWifi(String logHost, String logPort) {
     
     i++;
   }
+#endif
 }
 
 void ESP8266Logger::log(LogLevel logLev, String logFct, String logStr, boolean prtln, int logDestIdx) {
+#ifndef ENERGY_EFFICIENT  
   int     i        = 0;
   boolean replaced = false;
   
@@ -198,10 +211,8 @@ void ESP8266Logger::log(LogLevel logLev, String logFct, String logStr, boolean p
 							      "\r\nConnection: Keep-Alive\r\n\r\n";
           }
 
-#ifdef SERIAL_DEBUGGER
-          Serial.print("replaced URL: ");
-          Serial.println(sURL);
-#endif
+//          Serial.print("replaced URL: ");
+//          Serial.println(sURL);
           
 					_logDestList.get(i).logClient->print(sURL);
           _logDestList.get(i).logClient->flush();
@@ -214,4 +225,5 @@ void ESP8266Logger::log(LogLevel logLev, String logFct, String logStr, boolean p
     else
       i++;
   }
+#endif
 }
